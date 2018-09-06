@@ -2,8 +2,9 @@
   "name": "shared-interests-api",
   "version": "1.0.0",
   "description": "Node back-end for Shared Interests App",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "mocha --exit"
   },
   "repository": {
