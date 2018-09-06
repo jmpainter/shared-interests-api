@@ -1,4 +1,11 @@
- language: node_js
- node_js: node
- services:
-     - mongodb
+language: node_js
+node_js: node
+services:
+- mongodb
+deploy:
+  provider: heroku
+  api_key:
+    secure: dKaUB+G+AV7bXYNj6UevVark/Jk/g0BQwMJyQq/+PN6d5NI/LZDoBzbX92YZn2t94StAUbUXwXzs1vQKk/5gEFhWpMpdfWPmKM+5LsRDGEO3FUM+6O85x5gKgIzhodrbuIC3b+njWyrrCFqYojALKGceFQy8Q2OBf0Na/QYOrBG4P3Te/KF7OcOcU0J8nMe5qzfNrD1Nw0WbMydlNr7HPYAioEwmTExsrcGogywNGM9FKXB8W7Vele0k0e2xhDsBAHsAF4rPMkAq8E1e7NopFX4c3RyWIqY3LkwJcD4ZfBjsD+xy4mJW1ObZbzj6BBnSBNzAbD6bmaojRuLt9FwDUyEKOK6HuTtCLpRKqiEZTxSv4C7PKQf1uFA3zSZ19rt0xz70JBwWWg/POOvMZ4FBHAJTtgjYdnCTsflcL52+LjEM1SlSmWJXMkanTLYNysrrlY1v1NWJxiDfQ98m7GTeMjLKT1zTgYVkXzEVhxX0hvn701fLSQZmjMvi8Rp7xd/H5F5ganTnF+uZ82Bicvzl5/pvCag/98SMGXgVwzq7rLfU3bqGxjOM07pWrpTJhQh/XHnOgMmJxNjcU7kwL2HdZKP7bv7Q+KEli00+Gmba0vb0ZQCh6ucq3FfsQPlfjCs1RDDW+QD8yt17tpxFYuvw7sFj3nTIZk8jdc0lpB8vflY=
+  app: mysterious-chamber-23682
+  on:
+    repo: jmpainter/shared-interests-api
