@@ -1,0 +1,1 @@
+exports.CLIENT_ORIGIN = 'https://safe-coast-65126.herokuapp.com/';
