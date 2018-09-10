@@ -11,3 +11,7 @@ const interestSchema = new Schema ({
   }]
 });
 
+const Interest = mongoose.model('Interest', interestSchema);
+
+module.exports = Interest;
+
