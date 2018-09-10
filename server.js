@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const morgan = require('morgan');
 const cors = require('cors');
 
-// const userRouter = require('./routes/user');
+const userRouter = require('./routes/user');
 
 const logErrors = require('./middlewares/logErrors');
 
@@ -14,7 +14,7 @@ app.use(morgan('common'));
 app.use(logErrors);
 app.use(cors({ origin: CLIENT_ORIGIN }));
 
-// app.use('/users', userRouter);
+app.use('/users', userRouter);
 
 mongoose.Promise = global.Promise;
 
