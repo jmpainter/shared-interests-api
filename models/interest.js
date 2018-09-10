@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const interestSchema = new Schema ({
-  _id: Schema.Types.ObjectId,
   wikiPageId: Number,
   name: String,
   users: [{
@@ -10,6 +9,14 @@ const interestSchema = new Schema ({
     ref: 'User'
   }]
 });
+
+interestSchema.methods.serialize = function() {
+  return {
+    id: this.id,
+    wikiPageId: this.wikiPageId,
+    name: this.name
+  }
+}
 
 const Interest = mongoose.model('Interest', interestSchema);
 

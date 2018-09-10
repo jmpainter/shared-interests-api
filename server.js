@@ -1,9 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const passport = require('passport');
 const morgan = require('morgan');
 const cors = require('cors');
 
 const userRouter = require('./routes/user');
+const authRouter = require('./routes/auth');
+const interestsRouter = require('./routes/interest');
+
+const { localStrategy, jwtStrategy } = require('./helpers/strategies');
 
 const logErrors = require('./middlewares/logErrors');
 
@@ -14,7 +19,12 @@ app.use(morgan('common'));
 app.use(logErrors);
 app.use(cors({ origin: CLIENT_ORIGIN }));
 
+passport.use(localStrategy);
+passport.use(jwtStrategy);
+
 app.use('/users', userRouter);
+app.use('/auth', authRouter);
+app.use('/interests', interestsRouter);
 
 mongoose.Promise = global.Promise;
 
@@ -51,10 +61,6 @@ function closeServer() {
     });
   });
 }
-
-app.get('/*', (req, res) => {
-  res.json({ok: true});
-});
 
 if(require.main === module) {
   runServer(DATABASE_URL).catch(err => console.error(err));
