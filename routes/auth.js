@@ -17,7 +17,7 @@ const createAuthToken = function(user) {
 
 const localAuth = passport.authenticate('local', { session: false });
 
-router.post('/', jsonParser, localAuth, (req, res) => {
+router.post('/login', jsonParser, localAuth, (req, res) => {
   const authToken = createAuthToken(req.user.serialize());
   res.json({ authToken });
 });
@@ -25,7 +25,7 @@ router.post('/', jsonParser, localAuth, (req, res) => {
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
 router.post('/refresh', jwtAuth, (req, res) => {
-  const authToken = createAuthToken(req.user.serialize());
+  const authToken = createAuthToken(req.user);
   res.json({ authToken });
 });
 
