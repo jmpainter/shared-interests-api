@@ -17,11 +17,11 @@ router.post('/', jsonParser, (req, res) => {
     lastName: Joi.string().alphanum().max(30).required(),
     screenName: Joi.string().max(20).required(),
     location: Joi.string().max(30),
-    username: Joi.string().min(3).max(30).trim(false).required(),
-    password: Joi.string().min(7).max(72).trim(false).required()
+    username: Joi.string().min(3).max(30).trim().required(),
+    password: Joi.string().min(7).max(72).trim().required()
   };
-
-  const result = Joi.validate(req.body, schema);
+  debugger
+  const result = Joi.validate(req.body, schema, { convert: false });
 
   if(result.error) {
     return res.status(422).json({
