@@ -1,11 +1,12 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const chaiDateTime = require('chai-datetime');
 const mongoose = require('mongoose');
 
 const expect = chai.expect;
 
 chai.use(chaiHttp);
-chai.use(require('chai-datetime'));
+chai.use(chaiDateTime);
 
 mongoose.Promise = global.Promise;
 
@@ -21,23 +22,16 @@ const {
   handleError
 } = require('./seeds');
 
-//save off two users for authenticated tests
+//save off a user for authenticated tests
 let testUser = {};
-let testUser2 = {};
 let testUserToken;
-let testUser2Token;
 
-function seedDataAndGenerateTestUsers() {
+function seedDataAndGenerateTestUser() {
   return seedData()
     .then(() => User.findOne())
     .then(user => {
       testUser = user;
       testUserToken = generateTestUserToken(user);
-      return User.findOne({_id: {$ne: user.id}});
-    })
-    .then(user2 => {
-      testUser2 = user2;
-      testUser2Token = generateTestUserToken(user2);
     })
     .catch(err => console.error(err));
 }
@@ -55,7 +49,7 @@ describe('users API resource', () => {
   });
   
   beforeEach(() => {
-    return seedDataAndGenerateTestUsers();
+    return seedDataAndGenerateTestUser();
   });
 
   afterEach(() => {

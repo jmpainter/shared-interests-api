@@ -17,7 +17,6 @@ router.post('/', jsonParser, jwtAuth, (req, res) => {
     wikiPageId: Joi.string().alphanum().max(30).required(),
     name: Joi.string().max(50).required()
   }
-
   const result = Joi.validate(req.body, schema);
 
   if(result.error) {
@@ -61,28 +60,16 @@ router.post('/', jsonParser, jwtAuth, (req, res) => {
     .then(_interest => {
       // add interest reference to user's interest array if it is not already there
       interest = _interest;
-      if(!user.interests.find(interest => interest.id === interest.id)) {
+      if(user.interests.indexOf(interest.id) === -1) {
         user.interests.push(interest.id);
-      } else {
-        return Promise.reject({
-          code: 422,
-          reason: 'ValidationError',
-          message: 'Interest already has been added'
-        });
       }
       return user.save();
     })
     .then(() => {
       // add user reference to interest users array if it is not already there
-      if(!interest.users.find(user => user.id === user.id)) {
+      if(interest.users.indexOf(user.id) === -1) {
         interest.users.push(user.id);
-      } else {
-        return Promise.reject({
-          code: 422,
-          reason: 'ValidationError',
-          message: 'Interest already has been added'
-        });      
-      }
+      } 
       return interest.save();
     })
     .then(interest => {
@@ -92,8 +79,70 @@ router.post('/', jsonParser, jwtAuth, (req, res) => {
       if(err.reason === 'ValidationError') {
         return res.status(err.code).json(err);
       } else {
+        console.error(err.message);
         return res.status(500).json({ message: 'Internal Server Error' });
       }
+    });
+});
+
+// user is deleting an interest from their list of interests
+// interest is kept in database
+router.delete('/:id', jwtAuth, (req, res) => {
+  let user;
+  let interest;
+  return User.findById(req.user.id)
+    .then(_user => {
+      if(!_user) {
+        return Promise.reject({
+          code: 404,
+          reason: 'RequestError',
+          message: 'Not found'
+        });
+      } else {
+        user = _user;
+        return Interest.findById(req.params.id);
+      }
+    })
+    .then(_interest => {
+      if(!_interest) {
+        return Promise.reject({
+          code: 404,
+          reason: 'RequestError',
+          message: 'Not found'
+        });
+      } else {
+        interest = _interest;
+        //remove the interest from the user's list of interests
+        const index = user.interests.indexOf(req.params.id);
+        if(index === -1) {
+          return Promise.reject({
+            code: 404,
+            reason: 'RequestError',
+            message: 'Not found'
+          });
+        } else {
+          user.interests.splice(index, 1);
+        }
+        return user.save();
+      }
+    })
+    .then(() => {
+      // remove user from list of users for interest
+      const index = interest.users.indexOf(req.user.id);
+      if(index !== -1) {
+        interest.users.splice(index, 1);
+      }
+      return interest.save();
+    })
+    .then(() => {
+      res.status(204).end();
+    })
+    .catch(err => {
+      console.error(err.message);
+      if(err.reason === 'RequestError') {
+        return res.status(err.code).json(err);
+      }
+      return res.status(500).json({ message: 'Internal Server Error' });
     });
 });
 

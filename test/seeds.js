@@ -24,11 +24,35 @@ function seedData() {
           seed["password"] = password;
           return User.create(seed);
         })
-        .then()
+        .then(user => {
+          const interestPromises = [];
+          //create three interests for each user
+          for(let i = 0; i < 3; i++) {
+            interestPromises.push(Interest.create(generateInterestData(user._id)));
+          }
+          return Promise.all(interestPromises);
+        })
+        .then(results => {
+          //add the interest to the user's list of interests
+          const addInterestToUserPromises = [];
+          results.forEach((interest, index) => {
+            addInterestToUserPromises.push(addInterestToUser(interest.users[0], interest._id));
+          })
+          return Promise.all(addInterestToUserPromises);
+        })
        .catch(err => handleError(err))
     )
   })
   return Promise.all(promises);
+}
+
+function addInterestToUser(userId, interestId) {
+  return User.findById(userId)
+    .then(user => {
+      user.interests.push(interestId);
+      return user.save();
+    })
+    .catch(err => handleError(err));
 }
 
 function generateUserData() {
@@ -42,6 +66,13 @@ function generateUserData() {
   }
 }
 
+function generateInterestData(userId) {
+  return {
+    wikiPageId: faker.random.number(),
+    name: faker.lorem.words(),
+    users: [userId]
+  }
+}
 
 function generateTestUserToken(user) {
   return jwt.sign(
