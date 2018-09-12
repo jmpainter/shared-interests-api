@@ -24,6 +24,7 @@ userSchema.methods.serialize = function() {
     screenName: this.screenName,
     location: this.location || '',
     username: this.username
+   // interests: this.interests
   }
 }
 

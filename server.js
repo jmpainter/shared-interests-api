@@ -7,6 +7,7 @@ const cors = require('cors');
 const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth');
 const interestsRouter = require('./routes/interest');
+const conversationsRouter = require('./routes/conversation');
 
 const { localStrategy, jwtStrategy } = require('./helpers/strategies');
 
@@ -26,6 +27,7 @@ passport.use(jwtStrategy);
 app.use('/users', userRouter);
 app.use('/auth', authRouter);
 app.use('/interests', interestsRouter);
+app.use('/conversations', conversationsRouter);
 
 mongoose.Promise = global.Promise;
 

@@ -13,6 +13,15 @@ const conversationSchema = new Schema({
   }]
 });
 
+conversationSchema.methods.serialize = function () {
+  return {
+    id: this.id,
+    data: this.date,
+    users: this.users,
+    messages: this.messages
+  }
+}
+
 const Conversatation = mongoose.model('Conversation', conversationSchema);
 
 module.exports = Conversatation;

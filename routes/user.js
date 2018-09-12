@@ -20,7 +20,6 @@ router.post('/', jsonParser, (req, res) => {
     username: Joi.string().min(3).max(30).trim().required(),
     password: Joi.string().min(7).max(72).trim().required()
   };
-  debugger
   const result = Joi.validate(req.body, schema, { convert: false });
 
   if(result.error) {
@@ -34,7 +33,7 @@ router.post('/', jsonParser, (req, res) => {
 
   const { firstName, lastName, screenName, location = '', username, password } = req.body;
 
-  return User.find({ username })
+  User.find({ username })
     .countDocuments()
     .then(count => {
       if(count > 0) {
@@ -68,7 +67,6 @@ router.post('/', jsonParser, (req, res) => {
 }); 
 
 router.get('/', jwtAuth, (req, res) => {
-  console.log(req.user);
   User.findById(req.user.id)
     .then(user => {
       if(!user) {
