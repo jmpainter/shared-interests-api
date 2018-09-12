@@ -17,6 +17,16 @@ const messageSchema = new Schema({
   text: String
 });
 
+messageSchema.methods.serialize = function() {
+  return {
+    id: this.id,
+    senderId: this.senderId,
+    conversationId: this.conversationId,
+    date: this.date,
+    text: this.text
+  }
+}
+
 const Message = mongoose.model('Message', messageSchema);
 
 module.exports = Message;
