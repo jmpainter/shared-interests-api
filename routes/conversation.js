@@ -44,7 +44,7 @@ router.post('/', jsonParser, jwtAuth, (req, res) => {
   if(result.error) {
     return res.status(422).json({
       code: 422,
-      reason: 'Validation Error',
+      reason: 'ValidationError',
       message: result.error.details[0].message,
       location: result.error.details[0].context.key      
     });

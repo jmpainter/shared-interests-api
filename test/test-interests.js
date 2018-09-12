@@ -166,8 +166,6 @@ describe('interests API resource', () => {
           return User.findById(testUser.id);
         })
         .then(user => {
-          console.log(user.interests);
-          
           expect(user.interests.indexOf(interest.id)).to.not.equal(-1);
         })
         .catch(err => handleError(err));

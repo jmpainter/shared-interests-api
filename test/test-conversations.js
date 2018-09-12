@@ -69,6 +69,43 @@ describe('interests API resource', () => {
   describe('POST /interests', () => {
 
     it('Should reject unauthenticated requests', () => {
+      return chai.request(app)
+        .post('/conversations')
+        .then(res => {
+          expect(res).to.have.status(401);
+        })
+        .catch(err => handleError(err));
+      });
+      
+    it('Should reject requests that don\'t include a recipient', () => {
+        return chai.request(app)
+          .post('/conversations')
+          .set('authorization', `Bearer ${testUserToken}`)
+          .then(res => {
+            expect(res).to.have.status(422);
+            expect(res.body.reason).to.equal('ValidationError');
+            expect(res.body.message).to.equal('"recipient" is required');
+            expect(res.body.location).to.equal('recipient');
+          })
+          .catch(err => handleError(err));
+    });
+
+    it('Should create a conversation', () => {
+      return chai.request(app)
+        .post('/conversations')
+        .set('authorization', `Bearer ${testUserToken}`)
+        .send({ recipient: testUser2.id })
+        .then(res => {
+          expect(res).to.have.status(201);
+          expect(res.body.users).to.contain(testUser.id);
+          expect(res.body.users).to.contain(testUser2.id);
+          return Conversation.findById(res.body.id);
+        })
+        .then(conversation => {
+          expect(conversation.users).to.contain(testUser.id);
+          expect(conversation.users).to.contain(testUser2.id);
+        })
+        .catch(err => handleError(err));
     });
 
   });
