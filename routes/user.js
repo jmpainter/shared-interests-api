@@ -64,15 +64,25 @@ router.post('/', jsonParser, (req, res) => {
       }
       res.status(500).json({message: 'Internal Server Error'});
     });
-}); 
+});
 
 router.get('/', jwtAuth, (req, res) => {
   User.findById(req.user.id)
+    .populate('interests', 'name')
+    .populate('blockedUsers', 'name')
     .then(user => {
       if(!user) {
         return res.status(404).json({ message: 'Not Found' });
       } else {
-        return res.status(200).json(user.serialize());
+        return res.status(200).json({
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          screenName: user.screenName,
+          location: user.location,
+          interests: user.interests,
+          blockedUsers: user.blockedUsers
+        });
       }
     })
     .catch(err => {

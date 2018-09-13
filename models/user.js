@@ -13,6 +13,10 @@ const userSchema = new Schema({
   interests: [{
     type: Schema.Types.ObjectId,
     ref: 'Interest'
+  }],
+  blockedUsers: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   }]
 });
 
@@ -24,7 +28,6 @@ userSchema.methods.serialize = function() {
     screenName: this.screenName,
     location: this.location || '',
     username: this.username
-   // interests: this.interests
   }
 }
 
