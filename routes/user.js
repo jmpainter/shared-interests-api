@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const Joi = require('joi');
 const jsonParser = bodyParser.json();
 const User = require('../models/user');
+const InterestUser = require('../models/interestUser');
 
 mongoose.Promise = global.Promise;
 
@@ -17,6 +18,8 @@ router.post('/', jsonParser, (req, res) => {
     lastName: Joi.string().alphanum().max(30).required(),
     screenName: Joi.string().max(20).required(),
     location: Joi.string().max(30),
+    latitude: Joi.number(),
+    longitude: Joi.number(),
     username: Joi.string().min(3).max(30).trim().required(),
     password: Joi.string().min(7).max(72).trim().required()
   };
@@ -31,8 +34,7 @@ router.post('/', jsonParser, (req, res) => {
     });
   }
 
-  const { firstName, lastName, screenName, location = '', username, password } = req.body;
-
+  const { firstName, lastName, screenName, location = '', latitude, longitude, username, password } = req.body;
   User.find({ username })
     .countDocuments()
     .then(count => {
@@ -51,6 +53,8 @@ router.post('/', jsonParser, (req, res) => {
         lastName,
         screenName,
         location,
+        latitude,
+        longitude,
         username,
         password: hash
       });
@@ -67,7 +71,31 @@ router.post('/', jsonParser, (req, res) => {
 });
 
 router.get('/', jwtAuth, (req, res) => {
-  User.findById(req.user.id)
+
+  if(req.query.interests === 'true') {
+    // find other users by matching interest
+    User.findById(req.user.id)
+    .then(user => {
+      return InterestUser.find({ user: { $ne: user.id, $nin: user.blockedUsers }, interest: [...user.interests]})
+        .populate('user', 'firstName lastName screenName location username')
+        .populate('interest')
+    })
+    .then(result => {
+      result = result.map(result => {
+        return {
+          interest: result.interest,
+          user: result.user
+        }
+      });
+      return res.status(200).json(result);
+    })
+    .catch(err => console.error(err.message));    
+  } else if(req.query.location === 'true') {
+    // find other users by location
+
+  } else {
+    // get this user's information
+    User.findById(req.user.id)
     .populate('interests', 'name')
     .populate('blockedUsers', 'name')
     .then(user => {
@@ -88,6 +116,7 @@ router.get('/', jwtAuth, (req, res) => {
     .catch(err => {
       return res.status(500).json({ message: 'Internal Server Error' });
     })
+  }
 });
 
 router.put('/:id', jsonParser, jwtAuth, (req, res) => {
@@ -101,6 +130,8 @@ router.put('/:id', jsonParser, jwtAuth, (req, res) => {
     lastName: Joi.string().alphanum().max(30),
     screenName: Joi.string().max(20),
     location: Joi.string().max(30),
+    longitude: Joi.number(),
+    latitude: Joi.number(),
     username: Joi.string().min(3).max(30).trim(),
     password: Joi.string().min(7).max(72).trim(),
     interests: Joi.array().items(Joi.string().length(24)),
@@ -124,6 +155,8 @@ router.put('/:id', jsonParser, jwtAuth, (req, res) => {
     'lastName',
     'screenName',
     'location',
+    'longitude',
+    'latitude',
     'username',
     'password',
     'interests',
@@ -152,6 +185,8 @@ router.put('/:id', jsonParser, jwtAuth, (req, res) => {
         lastName: user.lastName,
         screenName: user.screenName,
         location: user.location,
+        longitude: user.longitude,
+        latitude: user.latitude,
         interests: user.interests,
         blockedUsers: user.blockedUsers
       });

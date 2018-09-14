@@ -8,6 +8,8 @@ const userSchema = new Schema({
   lastName: String,
   screenName: String,
   location: String,
+  latitude: { type: Number, default: 0 },
+  longitude:  { type: Number, default: 0 },
   username: String,
   password: String,
   interests: [{

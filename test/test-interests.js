@@ -67,27 +67,6 @@ describe('interests API resource', () => {
     return closeServer();
   });
 
-  describe('GET /interests', () => {
-
-    it('Should return a list of users with matching interests', () => {
-      return InterestUser.create({
-        user: testUser2.id,
-        interest: testUser.interests[0]
-      })
-      .then(() => {
-        return chai.request(app)
-          .get('/interests')
-          .set('authorization', `Bearer ${testUserToken}`)
-      })
-      .then(res => {
-        expect(res).to.have.status(200);
-        expect(res.body[0].interest._id).to.equal(testUser.interests[0].toString());
-        expect(res.body[0].user._id).to.equal(testUser2.id);
-      });
-    });
-
-  });
-
   describe('POST /interests', () => {
 
     it('Should reject unauthenticated requests', () => {

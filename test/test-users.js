@@ -11,6 +11,7 @@ chai.use(chaiDateTime);
 mongoose.Promise = global.Promise;
 
 const User = require('../models/user');
+const InterestUser = require('../models/interestUser');
 
 const { app, runServer, closeServer } = require('../server');
 const { TEST_DATABASE_URL } = require('../config');
@@ -22,16 +23,23 @@ const {
   handleError
 } = require('./seeds');
 
-//save off a user for authenticated tests
+// save off two users for authenticated tests
 let testUser = {};
+let testUser2 = {};
 let testUserToken;
+let testUser2Token;
 
-function seedDataAndGenerateTestUser() {
+function seedDataAndGenerateTestUsers() {
   return seedData()
     .then(() => User.findOne())
     .then(user => {
       testUser = user;
       testUserToken = generateTestUserToken(user);
+      return User.findOne({_id: {$ne: user.id}});
+    })
+    .then(user2 => {
+      testUser2 = user2;
+      testUser2Token = generateTestUserToken(user2);
     })
     .catch(err => console.error(err));
 }
@@ -41,6 +49,8 @@ describe('users API resource', () => {
   const lastName = 'User';
   const screenName = 'Name';
   const location = 'San Francisco';
+  const latitude = 52.7;
+  const longitude = -7.43;
   const username = 'exampleUser';
   const password = 'examplePass';
 
@@ -49,7 +59,7 @@ describe('users API resource', () => {
   });
   
   beforeEach(() => {
-    return seedDataAndGenerateTestUser();
+    return seedDataAndGenerateTestUsers();
   });
 
   afterEach(() => {
@@ -332,7 +342,6 @@ describe('users API resource', () => {
     });
 
     it('Should create a new user', () => {
-      let user;
       return chai
         .request(app)
         .post('/users')
@@ -342,7 +351,9 @@ describe('users API resource', () => {
           firstName,
           lastName,
           screenName,
-          location
+          location,
+          longitude,
+          latitude
         })
         .then(res => {
           expect(res).to.have.status(201);
@@ -352,18 +363,19 @@ describe('users API resource', () => {
           expect(res.body.lastName).to.equal(lastName);
           expect(res.body.screenName).to.equal(screenName);
           expect(res.body.location).to.equal(location);
-          user = res.body;
-          return User.findById(user.id)
+          return User.findById(res.body.id)
         })
-        .then(_user => {
-          expect(_user).to.not.be.null;
-          expect(_user.id).to.equal(user.id);
-          expect(_user.firstName).to.equal(user.firstName);
-          expect(_user.lastName).to.equal(user.lastName);
-          expect(_user.username).to.equal(user.username);
-          expect(_user.screenName).to.equal(user.screenName);
-          expect(_user.location).to.equal(user.location);
-          return _user.validatePassword(password);
+        .then(user => {
+          expect(user).to.not.be.null;
+          expect(user.id).to.equal(user.id);
+          expect(user.firstName).to.equal(firstName);
+          expect(user.lastName).to.equal(lastName);
+          expect(user.username).to.equal(username);
+          expect(user.screenName).to.equal(screenName);
+          expect(user.location).to.equal(location);
+          expect(user.longitude).to.equal(longitude);
+          expect(user.latitude).to.equal(latitude);
+          return user.validatePassword(password);
         })
         .then(passwordIsCorrect => {
           expect(passwordIsCorrect).to.be.true;
@@ -372,7 +384,7 @@ describe('users API resource', () => {
     });
   });
 
-  describe('GET /users', () => {
+  describe('GET /users', () => {  
 
     it('Should not let an unautheticated visitor to get user information', () => {
       return chai.request(app)
@@ -406,6 +418,24 @@ describe('users API resource', () => {
         })
         .catch(err => handleError(err));
     });
+
+    it('Should return a list of users with matching interests', () => {
+      return InterestUser.create({
+        user: testUser2.id,
+        interest: testUser.interests[0]
+      })
+      .then(() => {
+        return chai.request(app)
+          .get('/users?interests=true')
+          .set('authorization', `Bearer ${testUserToken}`)
+      })
+      .then(res => {
+        expect(res).to.have.status(200);
+        expect(res.body[0].interest._id).to.equal(testUser.interests[0].toString());
+        expect(res.body[0].user._id).to.equal(testUser2.id);
+      });
+    });
+
   });
 
   describe('PUT /users', () => {
@@ -455,13 +485,14 @@ describe('users API resource', () => {
         lastName: 'Henry',
         screenName: 'shenry',
         location: 'Concord',
+        longitude: 45.3,
+        latitude: -4.43,
         username: 'stan@the.net',
         password: 'newpass',
         interests: [fakeId, fakeId, fakeId],
         blockedUsers: [fakeId, fakeId]
       };
 
-      let user;
       return chai.request(app)
         .put(`/users/${testUser.id}`)
         .set('authorization', `Bearer ${testUserToken}`)
@@ -477,12 +508,13 @@ describe('users API resource', () => {
           expect(res.body.blockedUsers).to.eql(newUserInfo.blockedUsers);
           return User.findById(testUser.id);
         })
-        .then(_user => {
-          user = _user;
+        .then(user => {
           expect(user.firstName).to.equal(newUserInfo.firstName);
           expect(user.lastName).to.equal(newUserInfo.lastName);
           expect(user.screenName).to.equal(newUserInfo.screenName);
           expect(user.location).to.equal(newUserInfo.location);
+          expect(user.latitude).to.equal(newUserInfo.latitude);
+          expect(user.longitude).to.equal(newUserInfo.longitude);
           expect(user.interests.map(interestId => interestId.toString())).to.eql(newUserInfo.interests);
           expect(user.blockedUsers.map(userId => userId.toString())).to.eql(newUserInfo.blockedUsers);
         })
