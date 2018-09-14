@@ -4,11 +4,11 @@ const Schema = mongoose.Schema;
 // Creating a separate collection to store users for interests
 // because of performance issues with large embedded arrays in MongoDB
 const interestUserSchema = new Schema({
-  interestId: {
+  interest: {
     type: Schema.Types.ObjectId,
     ref: 'Interest'
   },
-  userId: {
+  user: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   }

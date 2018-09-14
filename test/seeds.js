@@ -45,8 +45,8 @@ function addInterestToUser(userId) {
     .then(_interest => {
       interest = _interest;
       return InterestUser.create({
-        userId,
-        interestId: interest.id
+        user: userId,
+        interest: interest.id
       });
     })
     .then(() => {

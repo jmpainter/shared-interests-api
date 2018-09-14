@@ -10,6 +10,26 @@ const Joi = require('joi');
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
+// get list of users with matching interests
+router.get('/', jwtAuth, (req, res) => {
+  User.findById(req.user.id)
+    .then(user => {
+      return InterestUser.find({ user: { $ne: user.id, $nin: user.blockedUsers }, interest: [...user.interests]})
+        .populate('user', 'firstName lastName screenName location username')
+        .populate('interest')
+    })
+    .then(result => {
+      result = result.map(result => {
+        return {
+          interest: result.interest,
+          user: result.user
+        }
+      });
+      return res.status(200).json(result);
+    })
+    .catch(err => console.error(err.message));
+});
+
 // user is adding an interest to their list of interests.
 // interest is being added from Wikipedia results
 router.post('/', jsonParser, jwtAuth, (req, res) => {
@@ -67,8 +87,8 @@ router.post('/', jsonParser, jwtAuth, (req, res) => {
     })
     .then(() => {
       return InterestUser.create({
-        interestId: interest.id,
-        userId: user.id
+        interest: interest.id,
+        user: user.id
       });
     })
     .then(() => {
@@ -128,8 +148,8 @@ router.delete('/:id', jwtAuth, (req, res) => {
     .then(() => {
       // remove the entry in interestuser
       return InterestUser.findOneAndDelete({
-        interestId: interest.id,
-        userId: user.id
+        interest: interest.id,
+        user: user.id
       });
     })
     .then(() => {
