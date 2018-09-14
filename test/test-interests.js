@@ -12,6 +12,7 @@ mongoose.Promise = global.Promise;
 
 const Interest = require('../models/interest');
 const User = require('../models/user');
+const InterestUser = require('../models/interestUser');
 
 const { app, runServer, closeServer } = require('../server');
 const { TEST_DATABASE_URL } = require('../config');
@@ -162,11 +163,17 @@ describe('interests API resource', () => {
           interest = _interest;
           expect(interest.name).to.equal(name);
           expect(interest.wikiPageId).to.equal(wikiPageId);
-          expect(interest.users[0].toString()).to.equal(testUser.id);
           return User.findById(testUser.id);
         })
         .then(user => {
           expect(user.interests.indexOf(interest.id)).to.not.equal(-1);
+          return InterestUser.findOne({
+            interestId: interest.id,
+            userId: user.id
+          });
+        })
+        .then(interestUser => {
+          expect(interestUser).to.exist;
         })
         .catch(err => handleError(err));
     });
@@ -216,7 +223,7 @@ describe('interests API resource', () => {
         .catch(err => handleError(err));
     });
 
-    it('Should remove the references in the user and interest but not remove the interest on deletion', () => {
+    it('Should remove the references in the user and the entry in interestusers but not remove the interest on deletion', () => {
       const deleteInterestId = testUser.interests[0];
       return chai.request(app)
         .delete(`/interests/${deleteInterestId}`)
@@ -227,10 +234,13 @@ describe('interests API resource', () => {
         })
         .then(user => {
           expect(user.interests.indexOf(deleteInterestId)).to.equal(-1);
-          return Interest.findById(deleteInterestId);
+          return InterestUser.findOne({
+            interestId: deleteInterestId,
+            userId: testUser.id
+          });
         })
-        .then(interest => {
-          expect(interest.users.indexOf(testUser.id)).to.equal(-1);
+        .then(interestUser => {
+          expect(interestUser).to.be.null;
         })
         .catch(err => handleError(err));
     });

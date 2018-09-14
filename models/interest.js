@@ -3,11 +3,7 @@ const Schema = mongoose.Schema;
 
 const interestSchema = new Schema ({
   wikiPageId: String,
-  name: String,
-  users: [{
-    type: Schema.Types.ObjectId,
-    ref: 'User'
-  }]
+  name: String
 });
 
 interestSchema.methods.serialize = function() {
@@ -21,4 +17,3 @@ interestSchema.methods.serialize = function() {
 const Interest = mongoose.model('Interest', interestSchema);
 
 module.exports = Interest;
-

@@ -5,6 +5,7 @@ const jsonParser = bodyParser.json();
 const router = express.Router();
 const User = require('../models/user');
 const Interest = require('../models/interest');
+const InterestUser = require('../models/interestUser');
 const Joi = require('joi');
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
@@ -65,13 +66,12 @@ router.post('/', jsonParser, jwtAuth, (req, res) => {
       return user.save();
     })
     .then(() => {
-      // add user reference to interest users array if it is not already there
-      if(interest.users.indexOf(user.id) === -1) {
-        interest.users.push(user.id);
-      } 
-      return interest.save();
+      return InterestUser.create({
+        interestId: interest.id,
+        userId: user.id
+      });
     })
-    .then(interest => {
+    .then(() => {
       res.status(201).json(interest.serialize());
     })
     .catch(err => {
@@ -126,18 +126,16 @@ router.delete('/:id', jwtAuth, (req, res) => {
       }
     })
     .then(() => {
-      // remove user from list of users for interest
-      const index = interest.users.indexOf(req.user.id);
-      if(index !== -1) {
-        interest.users.splice(index, 1);
-      }
-      return interest.save();
+      // remove the entry in interestuser
+      return InterestUser.findOneAndDelete({
+        interestId: interest.id,
+        userId: user.id
+      });
     })
     .then(() => {
       res.status(204).end();
     })
     .catch(err => {
-      console.error(err.message);
       if(err.reason === 'RequestError') {
         return res.status(err.code).json(err);
       }

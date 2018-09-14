@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 const Interest = require('../models/interest');
+const InterestUser = require('../models/interestUser');
 
 mongoose.Promise = global.Promise;
 
@@ -26,19 +27,11 @@ function seedData() {
         })
         .then(user => {
           const interestPromises = [];
-          //create three interests for each user
+          // create three interests for each user and add references
           for(let i = 0; i < 3; i++) {
-            interestPromises.push(Interest.create(generateInterestData(user._id)));
+            interestPromises.push(addInterestToUser(user._id));
           }
           return Promise.all(interestPromises);
-        })
-        .then(results => {
-          //add the interest to the user's list of interests
-          const addInterestToUserPromises = [];
-          results.forEach((interest, index) => {
-            addInterestToUserPromises.push(addInterestToUser(interest.users[0], interest._id));
-          })
-          return Promise.all(addInterestToUserPromises);
         })
        .catch(err => handleError(err))
     )
@@ -46,10 +39,21 @@ function seedData() {
   return Promise.all(promises);
 }
 
-function addInterestToUser(userId, interestId) {
-  return User.findById(userId)
+function addInterestToUser(userId) {
+  let interest;
+  return Interest.create(generateInterestData())
+    .then(_interest => {
+      interest = _interest;
+      return InterestUser.create({
+        userId,
+        interestId: interest.id
+      });
+    })
+    .then(() => {
+      return User.findById(userId);
+    })
     .then(user => {
-      user.interests.push(interestId);
+      user.interests.push(interest.id);
       return user.save();
     })
     .catch(err => handleError(err));
@@ -66,11 +70,10 @@ function generateUserData() {
   }
 }
 
-function generateInterestData(userId) {
+function generateInterestData() {
   return {
     wikiPageId: faker.random.number(),
-    name: faker.lorem.words(),
-    users: [userId]
+    name: faker.lorem.words()
   }
 }
 
