@@ -33,6 +33,7 @@ router.get('/', jwtAuth, (req, res) => {
 // user is adding an interest to their list of interests.
 // interest is being added from Wikipedia results
 router.post('/', jsonParser, jwtAuth, (req, res) => {
+  console.log('req.body: ' + JSON.stringify(req.body));
   const schema = {
     wikiPageId: Joi.string().alphanum().max(30).required(),
     name: Joi.string().max(50).required()

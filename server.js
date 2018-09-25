@@ -17,9 +17,9 @@ const logErrors = require('./middlewares/logErrors');
 const app = express();
 const { CLIENT_ORIGIN, PORT, DATABASE_URL } = require('./config');
 
-// turned off for development
-// app.use(morgan('common'));
+app.use(morgan('common'));
 app.use(logErrors);
+console.log('origin: ' + CLIENT_ORIGIN);
 app.use(cors({ origin: CLIENT_ORIGIN }));
 
 passport.use(localStrategy);
