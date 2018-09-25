@@ -438,6 +438,33 @@ describe('users API resource', () => {
 
   });
 
+  describe('GET /users/:id', () => {
+
+    it('Should not allow an unauthenticated user to get another user\'s info', () => {
+      return chai.request(app)
+        .get(`/users/${testUser2.id}`)
+        .then(res => {
+          expect(res).to.have.status(401);
+        })
+        .catch(err => handleError(err));      
+    });
+
+    it('Should allow an authenticated user to get another user\'s basic info', () => {
+      return chai.request(app)
+        .get(`/users/${testUser2.id}`)
+        .set('authorization', `Bearer ${testUserToken}`)
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res.body.id).to.equal(testUser2.id);
+          expect(res.body.screenName).to.equal(testUser2.screenName);
+          expect(res.body.location).to.equal(testUser2.location);
+          expect(res.body.interests.map(interest => interest._id)).to.deep.equal(testUser2.interests.map(id => id.toString()));
+        })
+        .catch(err => handleError(err));         
+    })
+
+  });
+
   describe('PUT /users', () => {
 
     it('Should reject an unauthenticated user', () => {

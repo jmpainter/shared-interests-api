@@ -96,27 +96,49 @@ router.get('/', jwtAuth, (req, res) => {
   } else {
     // get this user's information
     User.findById(req.user.id)
-    .populate('interests', 'name')
-    .populate('blockedUsers', 'name')
-    .then(user => {
-      if(!user) {
-        return res.status(404).json({ message: 'Not Found' });
-      } else {
-        return res.status(200).json({
-          id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          screenName: user.screenName,
-          location: user.location,
-          interests: user.interests,
-          blockedUsers: user.blockedUsers
-        });
-      }
-    })
-    .catch(err => {
-      return res.status(500).json({ message: 'Internal Server Error' });
-    })
+      .populate('interests', 'name')
+      .populate('blockedUsers', 'name')
+      .then(user => {
+        if(!user) {
+          return res.status(404).json({ message: 'Not Found' });
+        } else {
+          return res.status(200).json({
+            id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            screenName: user.screenName,
+            location: user.location,
+            interests: user.interests,
+            blockedUsers: user.blockedUsers
+          });
+        }
+      })
+      .catch(err => {
+        return res.status(500).json({ message: 'Internal Server Error' });
+      })
   }
+});
+
+// an authenticated user can get other other user's screenName, location, and interests
+router.get('/:id', jwtAuth, (req, res) => {
+  User.findById(req.params.id)
+  .populate('interests', 'name')
+  .then(user => {
+    if(!user) {
+      return res.status(404).json({ message: 'Not Found' });
+    } else {
+      return res.status(200).json({
+        id: user._id,
+        screenName: user.screenName,
+        location: user.location,
+        interests: user.interests
+      });
+    }
+  })
+  .catch(err => {
+    return res.status(500).json({ message: 'Internal Server Error' });
+  })
+
 });
 
 router.put('/:id', jsonParser, jwtAuth, (req, res) => {
