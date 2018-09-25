@@ -44,7 +44,7 @@ function seedDataAndGenerateTestUsers() {
     .catch(err => console.error(err));
 }
 
-describe('interests API resource', () => {
+describe('conversations API resource', () => {
   const wikiPageId = 'fake';
   const name = 'Gardening';
   const wikiPageId2 = 'fake2';
@@ -66,7 +66,37 @@ describe('interests API resource', () => {
     return closeServer();
   });
 
-  describe('POST /interests', () => {
+  describe('GET /conversations', () => {
+    it('Should reject unauthenticated requests', () => {
+      return chai.request(app)
+        .get('/conversations')
+        .then(res => {
+          expect(res).to.have.status(401);
+        })
+        .catch(err => handleError(err));
+      });
+    
+    it('Should get conversations for an authenticated user', () => {
+      return chai.request(app)
+        .post('/conversations')
+        .set('authorization', `Bearer ${testUserToken}`)
+        .send({ recipient: testUser2.id })
+        .then(() => {
+          return chai.request(app)
+            .get('/conversations')
+            .set('authorization', `Bearer ${testUserToken}`)
+        })
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res.body.conversations[0].users.map(user => JSON.stringify(user))).to.contain(JSON.stringify({ _id: testUser.id, screenName: testUser.screenName, location: testUser.location }));
+          expect(res.body.conversations[0].users.map(user => JSON.stringify(user))).to.contain(JSON.stringify({ _id: testUser2.id, screenName: testUser2.screenName, location: testUser2.location }));
+        })
+        .catch(err => handleError(err));
+    });
+
+  });
+
+  describe('POST /conversations', () => {
 
     it('Should reject unauthenticated requests', () => {
       return chai.request(app)
