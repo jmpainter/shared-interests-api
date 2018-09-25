@@ -87,20 +87,7 @@ router.get('/', jwtAuth, (req, res) => {
           user: result.user
         }
       });
-
-      // group results by interest
-      const resultObj = {};
-      const resultArray = [];
-      result.forEach(item => {
-        if(!resultObj[item.interest]) {
-          resultObj[item.interest.name] = [];
-        }
-        resultObj[item.interest.name].push(item.user);
-      });
-      for(let interest in resultObj) {
-        resultArray.push({interest: interest, users: resultObj[interest]});
-      }
-      return res.status(200).json(resultArray);
+      return res.status(200).json(result);
     })
     .catch(err => console.error(err.message));    
   } else if(req.query.location === 'true') {
