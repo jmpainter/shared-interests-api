@@ -122,7 +122,6 @@ router.get('/', jwtAuth, (req, res) => {
             distance
           };
         });
-        debugger;
         res.status(200).json(users);
       });
 
