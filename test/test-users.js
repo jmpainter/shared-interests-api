@@ -421,19 +421,34 @@ describe('users API resource', () => {
 
     it('Should return a list of users with matching interests', () => {
       return InterestUser.create({
-        user: testUser2.id,
-        interest: testUser.interests[0]
-      })
-      .then(() => {
-        return chai.request(app)
-          .get('/users?interests=true')
-          .set('authorization', `Bearer ${testUserToken}`)
-      })
-      .then(res => {
-        expect(res).to.have.status(200);
-        expect(res.body[0].interest._id).to.equal(testUser.interests[0].toString());
-        expect(res.body[0].user._id).to.equal(testUser2.id);
-      });
+          user: testUser2.id,
+          interest: testUser.interests[0]
+        })
+        .then(() => {
+          return chai.request(app)
+            .get('/users?interests=true')
+            .set('authorization', `Bearer ${testUserToken}`)
+        })
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res.body[0].interest._id).to.equal(testUser.interests[0].toString());
+          expect(res.body[0].user._id).to.equal(testUser2.id);
+        })
+        .catch(err => handleError(err));
+    });
+
+    it('Should return a list of users with nearby location', () => {
+      return chai.request(app)
+        .get('/users?nearby=true')
+        .set('authorization', `Bearer ${testUserToken}`)
+        .then(res => {
+          expect(res).to.have.status(200)
+          expect(res.body).to.be.a('array');
+          expect(res.body).to.have.lengthOf(2);
+          expect(res.body[0].distance).to.equal(0);
+          expect(res.body[1].distance).to.equal(0);
+        })
+        .catch(err => handleError(err));
     });
 
   });

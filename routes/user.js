@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const passport = require('passport');
+const haversine = require('haversine');
 const bodyParser = require('body-parser');
 const Joi = require('joi');
 const jsonParser = bodyParser.json();
@@ -90,8 +91,40 @@ router.get('/', jwtAuth, (req, res) => {
       return res.status(200).json(result);
     })
     .catch(err => console.error(err.message));    
-  } else if(req.query.location === 'true') {
-    // find other users by location
+  } else if(req.query.nearby === 'true') {
+    // find other users by nearby location
+    // get user's lat and log
+    let userLocation;
+    User.findById(req.user.id)
+      .then(user => {
+        userLocation = {
+          latitude: user.latitude,
+          longitude: user.longitude
+        }
+        // find other users within one degree of latitude and longitude
+        return User.find({
+          _id: { $ne: user.id },
+          latitude: { $gt: userLocation.latitude -1, $lt: userLocation.latitude + 1},
+          longitude: { $gt: userLocation.longitude -1, $lt: userLocation.longitude + 1}
+        });
+      })
+      .then(users => {
+        users = users.map(user => {
+          let otherUserLocation = {
+            latitude: user.latitude,
+            longitude: user.longitude
+          }
+          const distance = haversine(userLocation, otherUserLocation, {unit: 'mile'});
+          return {
+            id: user._id,
+            screenName: user.screenName,
+            location: user.location,
+            distance
+          };
+        });
+        debugger;
+        res.status(200).json(users);
+      });
 
   } else {
     // get this user's information

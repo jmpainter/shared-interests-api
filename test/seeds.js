@@ -65,6 +65,8 @@ function generateUserData() {
     lastName: faker.name.lastName(),
     screenName: faker.internet.userName(),
     location: faker.address.city(),
+    latitude: 1,
+    longitude: 1,
     username: faker.internet.email(),
     password: 'password'
   }
