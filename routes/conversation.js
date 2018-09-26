@@ -17,7 +17,7 @@ router.get('/', jwtAuth, (req, res) => {
     .populate({
       path: 'messages',
       populate: {
-        path: 'senderId',
+        path: 'sender',
         model: 'User',
         select: 'screenName location'
       }

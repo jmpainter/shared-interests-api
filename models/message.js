@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const messageSchema = new Schema({
-  senderId: {
+  sender: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
-  conversationId: {
+  conversation: {
     type: Schema.Types.ObjectId,
     ref: 'Conversation'
   },
@@ -20,8 +20,8 @@ const messageSchema = new Schema({
 messageSchema.methods.serialize = function() {
   return {
     id: this.id,
-    senderId: this.senderId,
-    conversationId: this.conversationId,
+    sender: this.senderId,
+    conversation: this.conversationId,
     date: this.date,
     text: this.text
   }
