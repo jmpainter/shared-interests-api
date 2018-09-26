@@ -94,6 +94,24 @@ describe('conversations API resource', () => {
         .catch(err => handleError(err));
     });
 
+    it('Should get a conversation for an authenticated user with a specified user', () => {
+      return chai.request(app)
+        .post('/conversations')
+        .set('authorization', `Bearer ${testUserToken}`)
+        .send({ recipient: testUser2.id })
+        .then(() => {
+          return chai.request(app)
+            .get(`/conversations/${testUser2.id}`)
+            .set('authorization', `Bearer ${testUserToken}`)
+        })
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res.body.users.map(user => JSON.stringify(user))).to.contain(JSON.stringify({ _id: testUser.id, screenName: testUser.screenName, location: testUser.location }));
+          expect(res.body.users.map(user => JSON.stringify(user))).to.contain(JSON.stringify({ _id: testUser2.id, screenName: testUser2.screenName, location: testUser2.location }));
+        })
+        .catch(err => handleError(err));
+    });
+
   });
 
   describe('POST /conversations', () => {

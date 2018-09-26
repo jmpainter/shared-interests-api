@@ -24,17 +24,20 @@ router.get('/', jwtAuth, (req, res) => {
     });
 });
 
-// get conversation by id
-// router.get('/:id', jwtAuth, (req, res) => {
-//   Conversation.findById(req.params.id)
-//     .then(conversation => {
-//       if(!conversation) {
-//         return res.status(404).json({ message: 'Not found' });
-//       } else {
-//         return res.status(200).json(conversation.serialize());
-//       }
-//     }) 
-// });
+// get conversation by id of other user in conversation
+
+router.get('/:id', jwtAuth, (req, res) => {
+  Conversation.findOne({ users: { $all: [req.params.id, req.user.id] } })
+    .populate('users', 'id screenName location')
+    .populate('messages', 'id senderId text date')
+    .then(conversation => {
+      if(!conversation) {
+        return res.status(404).json({ message: 'Not found' });
+      } else {
+        return res.status(200).json(conversation.serialize());
+      }
+    }) 
+});
 
 // create a conversation
 router.post('/', jsonParser, jwtAuth, (req, res) => {
