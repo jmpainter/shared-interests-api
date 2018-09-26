@@ -12,8 +12,16 @@ const jwtAuth = passport.authenticate('jwt', { session: false });
 // get all conversations for an authenticated user
 router.get('/', jwtAuth, (req, res) => {
   Conversation.find({ users: req.user.id })
-  .populate('users', 'id screenName location')
-  .populate('messages', 'id senderId text date')
+    .populate('users', 'id screenName location')
+    .populate('messages', 'id senderId text date')
+    .populate({
+      path: 'messages',
+      populate: {
+        path: 'senderId',
+        model: 'User',
+        select: 'screenName location'
+      }
+    })
     .then(conversations => {
       res.json({
         conversations
