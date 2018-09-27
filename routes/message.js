@@ -11,7 +11,11 @@ const Joi = require('joi');
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
 router.post('/', jsonParser, jwtAuth, (req, res) => {
+  if(!(req.params.id && req.body.id && req.params.id === req.body.id)) {
+    return res.status(400).json({ message: 'Request path id and request body id values must match'});
+  }
   const schema = {
+    id: Joi.string().required(),
     text: Joi.string().required()
   }
   const result = Joi.validate(req.body, schema);
@@ -28,7 +32,7 @@ router.post('/', jsonParser, jwtAuth, (req, res) => {
   const conversationId = req.params.id;
   const senderId = req.user.id;
   let conversation;
-  let messsage;
+  let message;
 
   Conversation
     .findById(conversationId)
@@ -42,8 +46,8 @@ router.post('/', jsonParser, jwtAuth, (req, res) => {
         });
       }
       return Message.create({
-        senderId,
-        conversationId,
+        sender: senderId,
+        conversation: conversationId,
         text
       });
     })
