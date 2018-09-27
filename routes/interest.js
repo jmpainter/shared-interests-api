@@ -10,22 +10,13 @@ const Joi = require('joi');
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
-// get list of users with matching interests
-router.get('/', jwtAuth, (req, res) => {
-  User.findById(req.user.id)
-    .then(user => {
-      return InterestUser.find({ user: { $ne: user.id, $nin: user.blockedUsers }, interest: [...user.interests]})
-        .populate('user', 'firstName lastName screenName location username')
-        .populate('interest')
-    })
-    .then(result => {
-      result = result.map(result => {
-        return {
-          interest: result.interest,
-          user: result.user
-        }
-      });
-      return res.status(200).json(result);
+// get list of 6 latest interests
+router.get('/', (req, res) => {
+  Interest.find()
+    .sort({$natural: -1})
+    .limit(6)
+    .then(interests => {
+      return res.status(200).json(interests);
     })
     .catch(err => console.error(err.message));
 });

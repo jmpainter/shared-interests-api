@@ -67,6 +67,29 @@ describe('interests API resource', () => {
     return closeServer();
   });
 
+  describe('GET /interests', () => {
+
+    it('Should return a list of the 6 latest interests', () => {
+      let interests;
+      return chai.request(app)
+        .get('/interests')
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          expect(res.body.length).to.equal(6);
+          interests = res.body
+          return Interest.find()
+            .sort({$natural: -1})
+            .limit(6)
+        })
+        .then(_interests => {
+          expect(JSON.stringify(_interests)).to.equal(JSON.stringify(interests));
+        })
+        .catch(err => handleError(err));
+    });
+
+  });
+
   describe('POST /interests', () => {
 
     it('Should reject unauthenticated requests', () => {
