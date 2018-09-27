@@ -451,6 +451,24 @@ describe('users API resource', () => {
         .catch(err => handleError(err));
     });
 
+    it('Should return a list of users with other interests', () => {
+      return InterestUser.create({
+          user: testUser2.id,
+          interest: testUser2.interests[0]
+        })
+        .then(() => {
+          return chai.request(app)
+            .get('/users?other=true')
+            .set('authorization', `Bearer ${testUserToken}`)
+        })
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res.body[0].interest._id).to.not.equal(testUser.interests[0].toString());
+          expect(res.body[0].user._id).to.equal(testUser2.id);
+        })
+        .catch(err => handleError(err));
+    });    
+
   });
 
   describe('GET /users/:id', () => {

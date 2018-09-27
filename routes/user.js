@@ -77,7 +77,10 @@ router.get('/', jwtAuth, (req, res) => {
     // find other users by matching interest
     User.findById(req.user.id)
     .then(user => {
-      return InterestUser.find({ user: { $ne: user.id, $nin: user.blockedUsers }, interest: [...user.interests]})
+      return InterestUser.find({ 
+        user: { $ne: user.id, $nin: user.blockedUsers },
+        interest: [...user.interests]
+      })
         .populate('user', 'firstName lastName screenName location username')
         .populate('interest')
     })
@@ -103,7 +106,7 @@ router.get('/', jwtAuth, (req, res) => {
         }
         // find other users within one degree of latitude and longitude
         return User.find({
-          _id: { $ne: user.id },
+          _id: { $ne: user.id, $nin: user.blockedUsers },
           latitude: { $gt: userLocation.latitude -1, $lt: userLocation.latitude + 1},
           longitude: { $gt: userLocation.longitude -1, $lt: userLocation.longitude + 1}
         });
@@ -125,6 +128,27 @@ router.get('/', jwtAuth, (req, res) => {
         res.status(200).json(users);
       });
 
+  } else if(req.query.other === 'true') {
+    // get a list of users with other interests
+    User.findById(req.user.id)
+    .then(user => {
+      return InterestUser.find({
+        user: { $ne: user.id, $nin: user.blockedUsers },
+        interest: { $nin: user.interests }
+      })
+      .populate('user', 'firstName lastName screenName location username')
+      .populate('interest')
+    })
+    .then(result => {
+      result = result.map(result => {
+        return {
+          interest: result.interest,
+          user: result.user
+        }
+      });
+      return res.status(200).json(result);
+    })
+    .catch(err => console.error(err.message));   
   } else {
     // get this user's information
     User.findById(req.user.id)

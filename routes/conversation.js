@@ -9,18 +9,23 @@ const Joi = require('joi');
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
-// get all conversations for an authenticated user
+// get conversations for an authenticated user except those with a blocked user
 router.get('/', jwtAuth, (req, res) => {
-  Conversation.find({ users: req.user.id })
-    .populate('users', 'id screenName location')
-    .populate('messages', 'id senderId text date')
-    .populate({
-      path: 'messages',
-      populate: {
-        path: 'sender',
-        model: 'User',
-        select: 'screenName location'
-      }
+  User.findById(req.user.id)
+    .then(user => {
+      return  Conversation.find({ 
+        users: { $eq: user.id, $nin: user.blockedUsers }
+      })
+        .populate('users', 'id screenName location')
+        .populate('messages', 'id senderId text date')
+        .populate({
+          path: 'messages',
+          populate: {
+            path: 'sender',
+            model: 'User',
+            select: 'screenName location'
+          }
+        });
     })
     .then(conversations => {
       res.json({
