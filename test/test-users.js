@@ -452,7 +452,7 @@ describe('users API resource', () => {
     });
 
     it('Should return a list of users with other interests', () => {
-      return InterestUser.crete({
+      return InterestUser.create({
           user: testUser2.id,
           interest: testUser2.interests[0]
         })
