@@ -463,8 +463,10 @@ describe('users API resource', () => {
         })
         .then(res => {
           expect(res).to.have.status(200);
-          expect(res.body[0].interest._id).to.not.equal(testUser.interests[0].toString());
-          expect(res.body[0].user._id).to.equal(testUser2.id);
+          const returnedInterests = res.body.map(item => item.interest._id);
+          testUser.interests.forEach(interest => {
+            expect(returnedInterests).to.not.include(interest.toString());
+          })
         })
         .catch(err => handleError(err));
     });    
