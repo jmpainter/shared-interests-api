@@ -5,11 +5,11 @@ const jsonParser = bodyParser.json();
 const Message = require('../models/message');
 const Conversation = require('../models/conversation');
 const router = express.Router({ mergeParams: true });
-const Interest = require('../models/interest');
 const Joi = require('joi');
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
+// add a message to a conversation specified in request parameter
 router.post('/', jsonParser, jwtAuth, (req, res) => {
   if(!(req.params.id && req.body.id && req.params.id === req.body.id)) {
     return res.status(400).json({ message: 'Request path id and request body id values must match'});
@@ -34,6 +34,7 @@ router.post('/', jsonParser, jwtAuth, (req, res) => {
   let conversation;
   let message;
 
+  // get the conversation that the message will be added to
   Conversation
     .findById(conversationId)
     .then(_conversation => {
@@ -53,6 +54,7 @@ router.post('/', jsonParser, jwtAuth, (req, res) => {
     })
     .then(_message => {
       message = _message;
+      // add the message reference to the conversation
       conversation.messages.push(message.id);
       return conversation.save();
     })

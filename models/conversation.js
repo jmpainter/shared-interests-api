@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// a conversation's associated users are stored in an array
+// for the future possiblity of multi user conversations
 const conversationSchema = new Schema({
   date: Date,
   users: [{

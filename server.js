@@ -18,8 +18,9 @@ const app = express();
 const { CLIENT_ORIGIN, PORT, DATABASE_URL } = require('./config');
 
 app.use(morgan('common'));
-app.use(logErrors);
-console.log('origin: ' + CLIENT_ORIGIN);
+
+// using cors because client has a different domain than api
+// client orign is configurable
 app.use(cors({ origin: CLIENT_ORIGIN }));
 
 passport.use(localStrategy);
@@ -31,10 +32,14 @@ app.use('/interests', interestsRouter);
 app.use('/conversations', conversationsRouter);
 app.use('/conversations/:id/messages', messagesRouter);
 
+app.use(logErrors);
+
+// using native javascript promises with Mongoose
 mongoose.Promise = global.Promise;
 
 let server;
 
+// runServer can be used by tests or when launching from command line
 function runServer(databaseUrl = DATABASE_URL, port = PORT) {
   return new Promise((resolve, reject) => {
     mongoose.connect(databaseUrl, { useNewUrlParser: true }, err => {
@@ -53,6 +58,7 @@ function runServer(databaseUrl = DATABASE_URL, port = PORT) {
   });
 }
 
+// closeServer can be used by tests
 function closeServer() {
   return mongoose.disconnect().then(() => {
     return new Promise((resolve, reject) => {
@@ -67,6 +73,7 @@ function closeServer() {
   });
 }
 
+// detect if server.js called by the command line and start server
 if(require.main === module) {
   runServer(DATABASE_URL).catch(err => console.error(err));
 }

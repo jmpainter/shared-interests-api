@@ -18,20 +18,19 @@ router.post('/', jsonParser, (req, res) => {
     firstName: Joi.string().alphanum().max(20).required(),
     lastName: Joi.string().alphanum().max(30).required(),
     screenName: Joi.string().max(20).required(),
-    location: Joi.string().max(30),
+    location: Joi.string().max(100),
     latitude: Joi.number(),
     longitude: Joi.number(),
     username: Joi.string().min(3).max(30).trim().required(),
     password: Joi.string().min(7).max(72).trim().required()
   };
   const result = Joi.validate(req.body, schema, { convert: false });
-
   if(result.error) {
     return res.status(422).json({
       code: 422,
       reason: 'ValidationError',
       message: result.error.details[0].message,
-      location: result.error.details[0].context.key
+      location: result.error.details[0].path[0]
     });
   }
 
@@ -136,6 +135,7 @@ router.get('/', jwtAuth, (req, res) => {
         user: { $ne: user.id, $nin: user.blockedUsers },
         interest: { $nin: user.interests }
       })
+      .limit(15)
       .populate('user', 'firstName lastName screenName location username')
       .populate('interest')
     })

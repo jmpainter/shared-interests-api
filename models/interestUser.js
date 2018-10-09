@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-// Creating a separate collection to store users for interests
+// creating a separate collection to associate users and interests
+// to avoid embedding users in the interest documents
 // because of performance issues with large embedded arrays in MongoDB
 const interestUserSchema = new Schema({
   interest: {

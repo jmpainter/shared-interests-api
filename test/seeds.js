@@ -8,6 +8,7 @@ const User = require('../models/user');
 const Interest = require('../models/interest');
 const InterestUser = require('../models/interestUser');
 
+// using native javascript promises with Mongoose
 mongoose.Promise = global.Promise;
 
 function seedData() {

@@ -128,16 +128,17 @@ describe('messages API resource', () => {
         .catch(err => handleError(err));
     });
 
-    it('Should create a message and add the reference to the conversation', () => {
+    it('Should create a message and add the message reference to the conversation', () => {
       let message;
       return chai.request(app)
+        // create the message
         .post(`/conversations/${testConversation.id}/messages`)
         .set('authorization', `Bearer ${testUserToken}`)
         .send({ id: testConversation.id, text: 'test'})
         .then(res => {
-          //TODO: fix this test 
           expect(res).to.have.status(201);
           expect(res.body.text).to.equal('test');
+          // check that the new message exists in the database
           return Message.findById(res.body.id);
         })
         .then(_message => {
@@ -148,6 +149,7 @@ describe('messages API resource', () => {
           return Conversation.findById(testConversation.id);   
         })
         .then(conversation => {
+          // check the conversation for the reference to the new message
           expect(conversation.messages).to.contain(message.id);
         })
         .catch(err => handleError(err));

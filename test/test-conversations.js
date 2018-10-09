@@ -67,6 +67,7 @@ describe('conversations API resource', () => {
   });
 
   describe('GET /conversations', () => {
+
     it('Should reject unauthenticated requests', () => {
       return chai.request(app)
         .get('/conversations')
@@ -77,6 +78,7 @@ describe('conversations API resource', () => {
       });
     
     it('Should get conversations for an authenticated user', () => {
+      // first create a conversation, then retrieve conversations
       return chai.request(app)
         .post('/conversations')
         .set('authorization', `Bearer ${testUserToken}`)
@@ -121,6 +123,7 @@ describe('conversations API resource', () => {
     });
 
     it('Should create a conversation', () => {
+      // create conversation, check both http response and database
       return chai.request(app)
         .post('/conversations')
         .set('authorization', `Bearer ${testUserToken}`)

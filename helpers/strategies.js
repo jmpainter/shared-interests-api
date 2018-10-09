@@ -4,6 +4,7 @@ const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const User = require('../models/user');
 const { JWT_SECRET } = require('../config');
 
+// localStrategy used for initial login
 const localStrategy = new LocalStrategy((username, password, done) => {
   let user;
 
@@ -35,6 +36,7 @@ const localStrategy = new LocalStrategy((username, password, done) => {
     });
 });
 
+// jwtStategy used for accessing protected endpoints
 const jwtStrategy = new JwtStrategy(
   {
     secretOrKey: JWT_SECRET,

@@ -70,6 +70,7 @@ describe('interests API resource', () => {
   describe('GET /interests', () => {
 
     it('Should return a list of the 6 latest interests', () => {
+      // get /interests, compare retunred results to database
       let interests;
       return chai.request(app)
         .get('/interests')
@@ -167,9 +168,10 @@ describe('interests API resource', () => {
         .catch(err => handleError(err));
     });        
 
-    it('Should interest to the collection and to the references in the user and interest if it is not present in the collection', () => {
+    it('Should add interest appropriately in the case of a new interest', () => {
       let interest
       return chai.request(app)
+        // add an interest for the user
         .post('/interests')
         .set('authorization', `Bearer ${testUserToken}`)
         .send({
@@ -177,18 +179,21 @@ describe('interests API resource', () => {
           name
         })
         .then(res => {
+          // check http response
           expect(res).to.have.status(201);
           expect(res.body.wikiPageId).to.equal(wikiPageId);
           expect(res.body.name).to.equal(name);
           return Interest.findById(res.body.id);
         })
         .then(_interest => {
+          // check the database for the new interest
           interest = _interest;
           expect(interest.name).to.equal(name);
           expect(interest.wikiPageId).to.equal(wikiPageId);
           return User.findById(testUser.id);
         })
         .then(user => {
+          // check the user for correct references to the new interest
           expect(user.interests.indexOf(interest.id)).to.not.equal(-1);
           return InterestUser.findOne({
             interest: interest.id,
@@ -196,14 +201,16 @@ describe('interests API resource', () => {
           });
         })
         .then(interestUser => {
+          // check for the entry in the interestUser association collection
           expect(interestUser).to.exist;
         })
         .catch(err => handleError(err));
     });
 
-    it('Should not add the interest to the collection but add the interest to the user\'s interests and the interest\'s users if it is already present in the collection', () => {
+    it('Should dd the interest appropriately in the case of an existing interest', () => {
 
       return chai.request(app)
+        // create the interest and add it to first user
         .post('/interests')
         .set('authorization', `Bearer ${testUserToken}`)
         .send({
@@ -213,6 +220,7 @@ describe('interests API resource', () => {
         .then(res => {
           expect(res).to.have.status(201);
           return chai.request(app)
+            // add the interest to the second user
             .post('/interests')
             .set('authorization', `Bearer ${testUser2Token}`)
             .send({
@@ -246,9 +254,10 @@ describe('interests API resource', () => {
         .catch(err => handleError(err));
     });
 
-    it('Should remove the references in the user and the entry in interestusers but not remove the interest on deletion', () => {
+    it('Should delete an interest', () => {
       const deleteInterestId = testUser.interests[0];
       return chai.request(app)
+        // delete the interest for the user
         .delete(`/interests/${deleteInterestId}`)
         .set('authorization', `Bearer ${testUserToken}`)
         .then(res => {
@@ -256,6 +265,7 @@ describe('interests API resource', () => {
           return User.findById(testUser.id);
         })
         .then(user => {
+          // check that the reference to the interest has been removed for the user
           expect(user.interests.indexOf(deleteInterestId)).to.equal(-1);
           return InterestUser.findOne({
             interest: deleteInterestId,
@@ -263,7 +273,13 @@ describe('interests API resource', () => {
           });
         })
         .then(interestUser => {
+          // check that the association in interestUser has been removed
           expect(interestUser).to.be.null;
+          return Interest.findById(testUser.interests[0]);
+        })
+        .then(interest => {
+          // check to see interest still exists in database
+          expect(interest).to.not.be.null;
         })
         .catch(err => handleError(err));
     });

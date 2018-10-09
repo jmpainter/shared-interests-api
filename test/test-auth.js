@@ -200,6 +200,7 @@ describe('Auth endpoints', () => {
           expect(res.body).to.be.an('object');
           const token = res.body.authToken;
           expect(token).to.be.a('string');
+          // check that the payload of the new token has user information
           const payload = jwt.verify(token, JWT_SECRET, {
             algorithm: ['HS256']
           });

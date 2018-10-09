@@ -27,7 +27,6 @@ const {
 let testUser = {};
 let testUser2 = {};
 let testUserToken;
-let testUser2Token;
 
 function seedDataAndGenerateTestUsers() {
   return seedData()
@@ -39,7 +38,6 @@ function seedDataAndGenerateTestUsers() {
     })
     .then(user2 => {
       testUser2 = user2;
-      testUser2Token = generateTestUserToken(user2);
     })
     .catch(err => console.error(err));
 }
@@ -568,6 +566,7 @@ describe('users API resource', () => {
           expect(res.body.location).to.equal(newUserInfo.location);
           expect(res.body.interests).to.eql(newUserInfo.interests);
           expect(res.body.blockedUsers).to.eql(newUserInfo.blockedUsers);
+          // check the new record in the database
           return User.findById(testUser.id);
         })
         .then(user => {
