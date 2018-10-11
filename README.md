@@ -4,7 +4,7 @@
 
 [http://www.oursharedinterests.org](http://www.oursharedinterests.org)
 
-This is the API for the [Shared Interests client](https://github.com/jmpainter/shared-interests-client
+This is the API for the [Shared Interests client](https://github.com/jmpainter/shared-interests-client)
 
 ## Technologies Used:
  
