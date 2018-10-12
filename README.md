@@ -1,10 +1,11 @@
 # Shared Interests API
 
+API for Shared Interests 
+[(https://github.com/jmpainter/shared-interests-client)](https://github.com/jmpainter/shared-interests-client)
+
 ## Live App:
 
 [http://www.oursharedinterests.org](http://www.oursharedinterests.org)
-
-This is the API for the [Shared Interests client](https://github.com/jmpainter/shared-interests-client)
 
 ## Technologies Used:
  
@@ -45,3 +46,5 @@ POST /conversations/:id/messages - create a message for a converation
 ## Author:
 
 [Josh Painter](http://joshuapainter.com/)
+
+
