@@ -1,7 +1,7 @@
 # Shared Interests API
 
 API for Shared Interests  
-[https://github.com/jmpainter/shared-interests-client]  (https://github.com/jmpainter/shared-interests-client)
+[https://github.com/jmpainter/shared-interests-client] (https://github.com/jmpainter/shared-interests-client)
 
 ## Live App:
 
