@@ -9,7 +9,7 @@ API for Shared Interests
 
 ## Technologies Used:
  
-The Shared Interests API was created with Node.js and the Express.js framework. Morgan is used for logging, joi for request validation, and haversine for distance calculations based on latitude and longitude. Passport.js is used for local and json web token authentication. The database used is Mongodb and mongoose is used as an object data manager. The Github source repository is integrated with TravisCI for integration testing and builds. TravisCI is integrated with Heroku for deployment. The MongoDB database is hosted at mLab. The app contains integration tests created with the Mocha test framework and the Chai assertion library.
+The Shared Interests API was created with Node.js and the Express.js framework. Morgan is used for logging, joi for request validation, and haversine for distance calculations based on latitude and longitude. Passport.js is used for local and json web token authentication. The database used is Mongodb and mongoose serves as an object data manager. The Github source repository is integrated with TravisCI for integration testing and builds. TravisCI is integrated with Heroku for deployment. The MongoDB database is hosted at mLab. The app contains integration tests created with the Mocha test framework and the Chai assertion library.
 
 ## API Documentation
 
