@@ -35,6 +35,11 @@
     "chai": "^4.1.2",
     "chai-datetime": "^1.5.0",
     "chai-http": "^4.2.0",
+    "eslint": "^5.7.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.11.1",
     "faker": "^4.1.0",
     "mocha": "^5.2.0"
   }
